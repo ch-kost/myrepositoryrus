@@ -1,0 +1,70 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+#include <random>
+
+class TradeSystem {
+public:
+    TradeSystem() {
+        // Задаем начальные цены торговых инструментов
+        prices_[0] = 100.0;
+        prices_[1] = 200.0;
+        prices_[2] = 300.0;
+    }
+
+    void startTrading() {
+        // Создаем потоки для торговли каждым инструментом
+        std::thread t0(&TradeSystem::tradeInstrument, this, 0);
+        std::thread t1(&TradeSystem::tradeInstrument, this, 1);
+        std::thread t2(&TradeSystem::tradeInstrument, this, 2);
+
+        // Ждем завершения торговли
+        t0.join();
+        t1.join();
+        t2.join();
+    }
+
+private:
+    // Цены на торговые инструменты
+    double prices_[3];
+    // Мьютекс для защиты доступа к ценам инструментов
+    std::mutex mutex_;
+
+    void tradeInstrument(int instrument) {
+        // Имитируем торговлю
+        std::cout << "Trading instrument " << instrument << std::endl;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(-5.0, 5.0);
+        
+        for (int i = 0; i < 10; i++) {
+            // Захватываем мьютекс
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            // Изменяем цену инструмента на случайную величину
+            double delta = dis(gen);
+            prices_[instrument] += delta;
+
+            // Выводим новую цену на экран
+            std::cout << "Instrument " << instrument << " price: " << prices_[instrument] << std::endl;
+
+            // Освобождаем мьютекс
+            lock.unlock();
+
+            // Спим на случайную продолжительность
+            std::chrono::milliseconds sleepTime(100 * (instrument + 1));
+            std::this_thread::sleep_for(sleepTime);
+        }
+    }
+};
+
+int main() {
+    // Создаем торговую систему
+    TradeSystem system;
+
+    // Запускаем торговлю
+    system.startTrading();
+
+    return 0;
+}
