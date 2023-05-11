@@ -1,0 +1,95 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class MessageStorage {
+private:
+    vector<string> messages;
+
+public:
+    // Метод для добавления нового сообщения в хранилище
+    void addMessage(string message) {
+        messages.push_back(message);
+    }
+
+    // Метод для изменения сообщения по индексу
+    void editMessageByIndex(int index, string newMessage) {
+        if (index >= 0 && index < messages.size()) {
+            messages[index] = newMessage;
+        }
+    }
+
+    // Метод для удаления сообщения по индексу
+    void deleteMessageByIndex(int index) {
+        if (index >= 0 && index < messages.size()) {
+            messages.erase(messages.begin() + index);
+        }
+    }
+
+    // Метод для вывода всех сообщений
+    void printAllMessages() {
+        int index = 1;
+        for (string message : messages) {
+            cout << index << ". " << message << endl;
+            index++;
+        }
+    }
+};
+
+int main() {
+    MessageStorage messages;
+
+    messages.addMessage("Привет!");
+    messages.addMessage("Как дела?");
+    messages.addMessage("Чем занимаешься?");
+
+    int choice = 0;
+
+    while (choice != 4) {
+        cout << "Выберите действие:" << endl;
+        cout << "1. Вывести все сообщения" << endl;
+        cout << "2. Редактировать сообщение" << endl;
+        cout << "3. Удалить сообщение" << endl;
+        cout << "4. Выйти" << endl;
+
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            messages.printAllMessages();
+            break;
+        case 2: {
+            int index;
+            string newMessage;
+
+            cout << "Введите номер сообщения для редактирования: ";
+            cin >> index;
+
+            cout << "Введите новое сообщение: ";
+            cin.ignore(); // используется для игнорирования символа переноса строки, оставшегося в буфере после ввода числа
+            getline(cin, newMessage);
+
+            messages.editMessageByIndex(index - 1, newMessage);
+            break;
+        }
+        case 3: {
+            int indexToDelete;
+
+            cout << "Введите номер сообщения для удаления: ";
+            cin >> indexToDelete;
+
+            messages.deleteMessageByIndex(indexToDelete - 1);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    return 0;
+}
+
+
